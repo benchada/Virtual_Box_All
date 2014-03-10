@@ -1,0 +1,24 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+template <class T>
+class A{
+ T a;
+public:
+	A() {throw string("bad value"); }
+	A (T x): a(x) {cout <<"A<T>::A(T)  a== " << a << endl; }
+	~A() { cout<<"A<T>::~A() a == " <<a<<endl; }
+};
+
+main () {
+
+	try {
+		cout<< "Let's start"<<endl;
+		A<int> a1(42);
+}
+	catch (string s) {
+	cout<< "error: "<< s <<endl; }
+cout<< "end main \n ";
+}
+

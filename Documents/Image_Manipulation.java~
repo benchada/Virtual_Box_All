@@ -1,0 +1,210 @@
+class Image_Manipulation {
+
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
+
+public class imageproc {
+    BufferedImage mainimg;
+    String path;
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        // TODO Auto-generated method stub
+        imageproc c;
+        try {
+            System.out.print("Please enter the path of your desired image");
+
+           
+            //System.out.print("Please select the operation\n1-Scale\n2-Rotate\n3-Translate\n4-Log\n5-Inverse Log\n6-Nth Power\n7-Nth Root\n8-Histogram Equalization\n9-Negative");
+            //int cases = System.in.read();
+           
+            c = new imageproc("C://Users/benchada/Pictures/books.png");
+
+           
+            c.mainimg=c.fold();
+            c.save();
+            System.out.print("Done! Check Image!");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public imageproc(String p) throws IOException{
+        mainimg=ImageIO.read(new File(p));
+        path=p;
+    }
+
+    public void save(){
+        String writepath=path.replace(".png", "1.png");
+        File outputfile = new File(writepath);
+
+        try {
+            ImageIO.write(mainimg, "png", outputfile);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    public BufferedImage translate(int dx, int dy){
+        WritableRaster coby = mainimg.copyData(null);
+        WritableRaster img = mainimg.getRaster();
+
+        for (int x =0; x<img.getWidth(); x++ ){
+            for (int y=0; y<img.getHeight(); y++){
+                if(!((x-dx)<0 || (x-dx)>img.getWidth()-1 || (y-dy) <0 || (y-dy)>img.getHeight()-1))
+                    img.setSample(x, y, 0,coby.getSample(x-dx,y-dy,0));
+                else
+                    img.setSample(x,y,0,0);
+            }}
+
+        mainimg.setData(img);
+        return mainimg;
+    }
+
+    public BufferedImage scale(double scale_factor){
+        WritableRaster img = mainimg.getRaster();
+        BufferedImage newimg = new BufferedImage((int)(img.getWidth()*scale_factor),(int)(img.getHeight()*sf),BufferedImage.TYPE_BYTE_GRAY);
+
+        WritableRaster nimg = newimg.getRaster();
+        for (int x =0; x<newimg.getWidth(); x++ ){
+            for (int y=0; y<newimg.getHeight(); y++){
+                nimg.setSample(x,y,0,img.getSample((int)(x/scale_factor),(int)(y/scale_factor),0));
+            }}
+
+        newimg.setData(nimg);
+        return newimg;
+    }
+
+
+    public BufferedImage rotation(double angle){
+        WritableRaster img = mainimg.getRaster();
+        WritableRaster cimg = mainimg.copyData(null);
+        angle*=Math.PI/180;
+        double x2,y2,xo,yo;
+        for (int x =0; x<img.getWidth(); x++ ){
+            for (int y=0; y<img.getHeight(); y++){
+                xo=x-img.getWidth()/2;
+                yo=y-img.getHeight()/2;
+                x2=xo*Math.cos(angle)-yo*Math.sin(angle);
+                y2=yo*Math.cos(angle)+xo*Math.sin(angle);
+                x2+=img.getWidth()/2;
+                y2+=img.getHeight()/2;
+                if(x2>=0 && x2<img.getWidth() && y2>-1 && y2<img.getHeight())
+                    img.setSample(x, y, 0, cimg.getSample((int)x2,(int)y2,0));
+                else
+                    img.setSample(x, y, 0,0);
+            }}
+
+        mainimg.setData(img);
+        return mainimg;
+    }
+   
+   
+
+    public BufferedImage negative(){
+        WritableRaster img = mainimg.getRaster();
+        int z;
+
+        for (int x =0; x<img.getWidth(); x++ ){
+            for (int y=0; y<img.getHeight(); y++){
+
+                z = 255 - img.getSample(x , y , 0);
+                img.setSample(x, y, 0,z);
+           
+            }}
+
+        mainimg.setData(img);
+        return mainimg;
+    }
+   
+
+
+    public BufferedImage log(){
+        WritableRaster img = mainimg.getRaster();
+        int z;
+
+        for (int x =0; x<img.getWidth(); x++ ){
+            for (int y=0; y<img.getHeight(); y++){
+
+                z = (int)(255/Math.log(256.0)* Math.log(1+ img.getSample(x , y , 0)));
+                img.setSample(x, y, 0,z);
+            }}
+
+        mainimg.setData(img);
+        return mainimg;
+    }
+
+    public BufferedImage loginverse(){
+        WritableRaster img = mainimg.getRaster();
+        int z;
+
+        for (int x =0; x<img.getWidth(); x++ ){
+            for (int y=0; y<img.getHeight(); y++){
+
+                z = (int)(255/Math.pow(1.02,256.0)* Math.pow(1.02, img.getSample(x , y , 0)))-1;
+                img.setSample(x, y, 0,z);
+            }}
+
+        mainimg.setData(img);
+        return mainimg;
+    }
+   
+    public BufferedImage nthpow(double n){
+        WritableRaster img = mainimg.getRaster();
+        int z;
+
+        for (int x =0; x<img.getWidth(); x++ ){
+            for (int y=0; y<img.getHeight(); y++){
+
+                z = (int)(255/Math.pow(255,n)* Math.pow(img.getSample(x , y , 0),n));
+                img.setSample(x, y, 0,z);
+            }}
+
+        mainimg.setData(img);
+        return mainimg;
+    }
+
+
+   
+    public BufferedImage folding(){
+        WritableRaster img = mainimg.getRaster();
+          //First step: Folding Vertically     
+        for (int x =0; x<img.getWidth(); x++ )
+        {
+            for (int y=0; y<(img.getHeight())/2; y++)
+                      {
+                         int s = img.getSample(x, y, 0);
+                         int r = img.getSample(x, img.getWedth-j, 0);
+                         int avg;
+             avg = (int)(r+s)/2;
+            img.setSample(x, y, 0, avg);
+                       }
+         }
+
+        //Second Step: Folding Horizantaly
+        for (int x =0; x<(img.getWidth())/2; x++ )
+        {
+            for (int y=0; y<(img.getHeight())/2; y++)
+                      {
+                         int s = img.getSample(x, y, 0);
+                         int r = img.getSample(img.getWedth()-x, y, 0);
+                         int average = (int)(r+s)/2;
+           
+img.setSample(x, y, 0, average);
+                       }
+         }
+
+        mainimg.setData(img);
+        return mainimg;
+    }
+}
+}

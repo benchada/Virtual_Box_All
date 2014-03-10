@@ -1,0 +1,14 @@
+
+# Part2: Strings
+
+def palindrom? (string)
+	string = string.downcase.scan(/\w/)
+	rev_string = string.reverse
+	
+	puts rev_string == string
+end
+
+
+palindrom? ("chada")
+palindrom? ("racecar")
+palindrom? ("Abracadabra")
